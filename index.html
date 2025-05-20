@@ -1,49 +1,168 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Test page</title>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вгадай число!</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box; /* Враховувати padding у загальному розмірі */
+        }
 
-        <style>
-            .flexys {
-                display:flex;
-                flex-wrap: nowrap;
-                background-color:rgb(88, 168, 168);
-                justify-content: space-between;
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 1.8em; /* Адаптивний розмір для заголовка */
+        }
+
+        p {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        input[type="number"] {
+            width: calc(100% - 20px); /* Ширина з урахуванням padding */
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+            width: 100%; /* Забезпечити повну ширину на мобільних */
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #555;
+        }
+
+        #attempts {
+            margin-top: 10px;
+            font-size: 1em;
+            color: #777;
+        }
+
+        /* Медіа-запити для адаптації на менших екранах */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.5em;
+            }
+            p, #message, #attempts {
+                font-size: 1em;
+            }
+            input[type="number"], button {
+                font-size: 1em;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Вгадай число!</h1>
+        <p>Я загадав число від 1 до 100. Спробуй вгадати його!</p>
+        <input type="number" id="guessInput" placeholder="Введіть ваше число" min="1" max="100">
+        <button onclick="checkGuess()">Перевірити</button>
+        <button onclick="resetGame()" id="resetButton" style="display: none; background-color: #dc3545;">Почати заново</button>
+        <p id="message"></p>
+        <p id="attempts">Спроб: 0</p>
+    </div>
+
+    <script>
+        let randomNumber;
+        let attempts;
+
+        function initializeGame() {
+            randomNumber = Math.floor(Math.random() * 100) + 1;
+            attempts = 0;
+            document.getElementById('message').textContent = '';
+            document.getElementById('attempts').textContent = 'Спроб: 0';
+            document.getElementById('guessInput').value = '';
+            document.getElementById('guessInput').disabled = false;
+            document.querySelector('button[onclick="checkGuess()"]').style.display = 'block';
+            document.getElementById('resetButton').style.display = 'none';
+        }
+
+        function checkGuess() {
+            const guessInput = document.getElementById('guessInput');
+            const guess = parseInt(guessInput.value);
+            const messageElement = document.getElementById('message');
+            const attemptsElement = document.getElementById('attempts');
+
+            if (isNaN(guess) || guess < 1 || guess > 100) {
+                messageElement.textContent = 'Будь ласка, введіть число від 1 до 100.';
+                messageElement.style.color = '#ffc107'; /* Жовтий для попередження */
+                return;
             }
 
-            .flexys > div{
-                background-color: blueviolet;
-                border: 1px;
-                border-radius: 10px;
-                width: 100px;
-                height: 100px;
-                text-align:center;
-                font-size: 20px;
-                color:aliceblue;
-                vertical-align: baseline;
-                line-height: 90px;
+            attempts++;
+            attemptsElement.textContent = `Спроб: ${attempts}`;
+
+            if (guess === randomNumber) {
+                messageElement.textContent = `Вітаємо! Ви вгадали число ${randomNumber} за ${attempts} спроб!`;
+                messageElement.style.color = '#28a745'; /* Зелений для успіху */
+                guessInput.disabled = true;
+                document.querySelector('button[onclick="checkGuess()"]').style.display = 'none';
+                document.getElementById('resetButton').style.display = 'block';
+            } else if (guess < randomNumber) {
+                messageElement.textContent = 'Більше!';
+                messageElement.style.color = '#007bff'; /* Синій для підказки */
+            } else {
+                messageElement.textContent = 'Менше!';
+                messageElement.style.color = '#007bff'; /* Синій для підказки */
             }
 
-            .flexys:hover{
-                background-color: rgb(131, 24, 115);
-            }
-        </style>
-    </head>
+            guessInput.value = ''; // Очистити поле вводу
+            guessInput.focus(); // Повернути фокус на поле вводу
+        }
 
-    <body>
-        <h1>Header of this page!</h1>
-        Some text fo ex
+        function resetGame() {
+            initializeGame();
+        }
 
-        <div class="flexys">
-            <div>1</div>
-            <div>2</div>
-            <div>3</div>
-            <div>4</div>
-            <div>5</div>
-        </div>
-        
-
-
-
-    </body>
+        // Ініціалізуємо гру при завантаженні сторінки
+        window.onload = initializeGame;
+    </script>
+</body>
 </html>
